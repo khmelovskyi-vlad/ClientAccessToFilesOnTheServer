@@ -17,50 +17,83 @@ namespace ClientAccessToFilesOnTheServer
         private const string ip2 = "192.168.0.105";
         private const int port = 2048;
         private byte[] date;
-        Socket tcpSocket;
+        private Socket tcpSocket;
 
         private byte[] buffer;
         private int size;
         private StringBuilder answer;
-        bool flagToRedact;
+        private bool flagToRedact;
 
         public void Client()
         {
             var tcpEndPoint = new IPEndPoint(IPAddress.Parse(ip2), port);
             using (tcpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
             {
-                tcpSocket.Connect(tcpEndPoint);
-                while (true)
+                try
                 {
-                    flagToRedact = true;
-                    AnswerServer();
-                    do
+                    tcpSocket.Connect(tcpEndPoint);
+                    while (true)
                     {
-                        size = tcpSocket.Receive(buffer);
-                        answer.Append(Encoding.ASCII.GetString(buffer, 0, size));
-                    } while (tcpSocket.Available > 0);
-
-                    NeedRedacting();
-                    if (flagToRedact)
+                        flagToRedact = true;
+                        AnswerServer();
+                        NeedRedacting();
+                        if (flagToRedact)
+                        {
+                            RedactFile();
+                            continue;
+                        }
+                        Console.WriteLine(answer.ToString());
+                        var message = WriteMessage();
+                        if (message == "Q")
+                        {
+                            break;
+                        }
+                        SendMessage(message);
+                    }
+                }
+                catch (SocketException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return;
+                }
+            }
+        }
+        private string WriteMessage()
+        {
+            StringBuilder message = new StringBuilder();
+            while (true)
+            {
+                var key = Console.ReadKey();
+                if (key.Key == ConsoleKey.Enter)
+                {
+                    return message.ToString();
+                }
+                else if (key.Key == ConsoleKey.Escape)
+                {
+                    throw new OperationCanceledException();
+                }
+                else if (key.Key == ConsoleKey.Backspace)
+                {
+                    try
                     {
-                        RedactFile();
+                        message.Remove(message.Length - 1, 1);
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
                         continue;
                     }
-                    Console.WriteLine(answer.ToString());
-                    var message = Console.ReadLine();
-                    SendMessage(message);
-                    if (message == "Q")
-                    {
-                        break;
-                    }
+                }
+                else
+                {
+                    message.Append(key.KeyChar);
                 }
             }
         }
         private void NeedRedacting()
         {
-            for (int i = 0; i < 14; i++)
+            for (int i = 0; i < 3; i++)
             {
-                if (answer[i] == 'r')
+                if (answer[i] == '?')
                 {
                     continue;
                 }
@@ -70,16 +103,24 @@ namespace ClientAccessToFilesOnTheServer
         }
         private void RedactFile()
         {
-            answer.Remove(0, 14);
-            FileRedactClass fileStreamClass = new FileRedactClass(answer.ToString());
-            var (savingFileFlag, file) = fileStreamClass.RedactFile();
-            if (savingFileFlag)
+            try
             {
-                SendMessage(file);
+                answer.Remove(0, 3);
+                FileRedactClass fileStreamClass = new FileRedactClass(answer.ToString());
+                var (savingFileFlag, file) = fileStreamClass.RedactFile();
+                if (savingFileFlag)
+                {
+                    SendMessage(file);
+                }
+                else
+                {
+                    SendMessage("???");
+                }
             }
-            else
+            catch (SocketException)
             {
-                SendMessage("rrrrrrrrrrrrrr");
+
+                throw;
             }
         }
         private void AnswerServer()
@@ -87,6 +128,11 @@ namespace ClientAccessToFilesOnTheServer
             buffer = new byte[256];
             size = 0;
             answer = new StringBuilder();
+            do
+            {
+                size = tcpSocket.Receive(buffer);
+                answer.Append(Encoding.ASCII.GetString(buffer, 0, size));
+            } while (tcpSocket.Available > 0);
         }
         private void SendMessage(string message)
         {
@@ -95,7 +141,7 @@ namespace ClientAccessToFilesOnTheServer
                 date = Encoding.ASCII.GetBytes(message);
                 if (date.Length == 0)
                 {
-                    message = Console.ReadLine();
+                    message = WriteMessage();
                     continue;
                 }
                 break;

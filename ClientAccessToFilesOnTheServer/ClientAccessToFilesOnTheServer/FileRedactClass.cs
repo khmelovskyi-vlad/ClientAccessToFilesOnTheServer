@@ -14,46 +14,21 @@ namespace ClientAccessToFilesOnTheServer
             SavingFileFlag = false;
         }
         public string AdressName { get; set; }
-        StringBuilder textBuilderEnd;
-        StringBuilder allTextBuilder;
-        StringBuilder textBuilderFirst = new StringBuilder();
-        int topPosition;
-        int leftPosition;
-        List<string> fileLines = new List<string>();
+        private StringBuilder textBuilderEnd;
+        private StringBuilder allTextBuilder;
+        private StringBuilder textBuilderFirst = new StringBuilder();
+        private int topPosition;
+        private int leftPosition;
+        private List<string> fileLines = new List<string>();
         private string StringArrayBytes;
         private bool SavingFileFlag;
         public (bool savingFileFlag, string file) RedactFile()
         {
-            //ReadFile();
             SavingFileFlag = EditingFile();
             return (SavingFileFlag, StringArrayBytes);
 
         }
-        //public void ReadFile()
-        //{
-        //    int buffer = 64;
-        //    byte[] bytesFile = new byte[buffer];
-        //    List<byte> allBite = new List<byte>();
-        //    var readedRealBytes = 0;
-        //    while (true)
-        //    {
-        //        readedRealBytes += fileStreamFirst.Read(bytesFile, 0, buffer);
-        //        allBite.AddRange(bytesFile);
-        //        StringArrayBytes = Encoding.Default.GetString(allBite.ToArray(), 0, readedRealBytes);
-        //        Console.Write(StringArrayBytes);
-        //        if (readedRealBytes < buffer)
-        //        {
-        //            break;
-        //        }
-        //        else
-        //        {
-        //            buffer *= 2;
-        //            bytesFile = new byte[buffer];
-        //        }
-        //    }
-        //    fileStreamFirst.Seek(0, SeekOrigin.Begin);
-        //}
-        public bool EditingFile()
+        private bool EditingFile()
         {
             var undestand = UnderstandingQuestions();
             if (undestand.Key == ConsoleKey.Enter)

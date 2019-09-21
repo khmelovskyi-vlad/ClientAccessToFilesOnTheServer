@@ -12,6 +12,8 @@ namespace ClientAccessToFilesOnTheServer
         {
             NetClient netClient = new NetClient();
             netClient.Client();
+            Console.WriteLine("Conection is ending");
+            Console.ReadKey();
         }
     }
 }
