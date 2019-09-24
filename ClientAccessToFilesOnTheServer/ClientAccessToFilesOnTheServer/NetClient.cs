@@ -14,7 +14,7 @@ namespace ClientAccessToFilesOnTheServer
         {
         }
 
-        private const string ip2 = "192.168.0.105";
+        private const string ip2 = "192.168.0.107";
         private const int port = 2048;
         private byte[] date;
         private Socket tcpSocket;
@@ -66,6 +66,7 @@ namespace ClientAccessToFilesOnTheServer
                 var key = Console.ReadKey();
                 if (key.Key == ConsoleKey.Enter)
                 {
+                    Console.WriteLine();
                     return message.ToString();
                 }
                 else if (key.Key == ConsoleKey.Escape)
