@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace ClientAccessToFilesOnTheServer
 {
-    class FileRedactClass
+    class FileRedact
     {
-        public FileRedactClass(string stringArrayBytes)
+        public FileRedact(string stringArrayBytes)
         {
             this.StringArrayBytes = stringArrayBytes;
             SavingFileFlag = false;

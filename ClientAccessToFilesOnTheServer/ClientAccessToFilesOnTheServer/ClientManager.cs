@@ -1,61 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ClientAccessToFilesOnTheServer
 {
-    class NetClient
+    class ClientManager
     {
-        public NetClient()
+        public ClientManager(Socket tcpSocket)
         {
+            this.tcpSocket = tcpSocket;
         }
-
-        private const string ip2 = "192.168.0.107";
-        private const int port = 2048;
-        private byte[] date;
-        private Socket tcpSocket;
-
         private byte[] buffer;
         private int size;
         private StringBuilder answer;
         private bool flagToRedact;
-
-        public void Client()
+        private byte[] date;
+        private Socket tcpSocket;
+        public void FindNeedFiles()
         {
-            var tcpEndPoint = new IPEndPoint(IPAddress.Parse(ip2), port);
-            using (tcpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
+            while (true)
             {
-                try
+                flagToRedact = true;
+                AnswerServer();
+                NeedRedacting();
+                if (flagToRedact)
                 {
-                    tcpSocket.Connect(tcpEndPoint);
-                    while (true)
-                    {
-                        flagToRedact = true;
-                        AnswerServer();
-                        NeedRedacting();
-                        if (flagToRedact)
-                        {
-                            RedactFile();
-                            continue;
-                        }
-                        Console.WriteLine(answer.ToString());
-                        var message = WriteMessage();
-                        if (message == "Q")
-                        {
-                            break;
-                        }
-                        SendMessage(message);
-                    }
+                    RedactFile();
+                    continue;
                 }
-                catch (SocketException ex)
+                Console.WriteLine(answer.ToString());
+                var message = WriteMessage();
+                if (message == "Q")
                 {
-                    Console.WriteLine(ex.Message);
-                    return;
+                    break;
                 }
+                SendMessage(message);
             }
         }
         private string WriteMessage()
@@ -107,7 +89,7 @@ namespace ClientAccessToFilesOnTheServer
             try
             {
                 answer.Remove(0, 3);
-                FileRedactClass fileStreamClass = new FileRedactClass(answer.ToString());
+                FileRedact fileStreamClass = new FileRedact(answer.ToString());
                 var (savingFileFlag, file) = fileStreamClass.RedactFile();
                 if (savingFileFlag)
                 {

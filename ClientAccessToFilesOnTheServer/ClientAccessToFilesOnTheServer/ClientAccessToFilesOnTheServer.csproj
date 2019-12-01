@@ -43,8 +43,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FileRedactClass.cs" />
-    <Compile Include="NetClient.cs" />
+    <Compile Include="ClientManager.cs" />
+    <Compile Include="FileRedact.cs" />
+    <Compile Include="Connection.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

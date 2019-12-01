@@ -10,7 +10,7 @@ namespace ClientAccessToFilesOnTheServer
     {
         static void Main(string[] args)
         {
-            NetClient netClient = new NetClient();
+            Connection netClient = new Connection();
             netClient.Client();
             Console.WriteLine("Conection is ending");
             Console.ReadKey();
